@@ -36,7 +36,7 @@ class Session(RequestsSession):
 
         # `Session.__init__()` calls `mount()` internally, so we need to allow
         # it temporarily
-        self.__mount_allowed = True
+        self.mount_allowed = True
         RequestsSession.__init__(self, *args, **kwargs)
 
         # Drop any existing adapters
@@ -44,11 +44,11 @@ class Session(RequestsSession):
 
         self.mount("http://", ValidatingHTTPAdapter(validator=self.validator, **adapter_kwargs))
         self.mount("https://", ValidatingHTTPAdapter(validator=self.validator, **adapter_kwargs))
-        self.__mount_allowed = False
+        self.mount_allowed = False
 
     def mount(self, *args, **kwargs):
         """Wrapper around `mount()` to prevent a protection bypass"""
-        if self.__mount_allowed:
+        if self.mount_allowed:
             super().mount(*args, **kwargs)
         else:
             raise MountDisabledException(
